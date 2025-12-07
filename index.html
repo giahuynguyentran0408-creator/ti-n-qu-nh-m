@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Quỹ Chung Đa Năng (Dark Mode) - Full Features</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        /* CSS: Dark Mode, Layout Nâng cao */
+        :root {
+            --bg-dark: #1a1a2e; /* Nền tối chính */
+            --bg-card: #16213e; /* Nền thẻ tối */
+            --primary-color: #0f3460; /* Màu nhấn chính */
+            --accent-color: #e94560; /* Màu đỏ hồng nổi bật */
+            --income-color: #28a745; /* Xanh lá */
+            --expense-color: #dc3545; /* Đỏ */
+            --text-light: #e0e0e0; /* Chữ sáng */
+            --text-muted: #a0a0a0; /* Chữ mờ */
+            --border-color: #0e1628; /* Màu đường viền */
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Sidebar 1/3, Main 2/3 */
+            gap: 30px;
+            flex-grow: 1;
+        }
+
+        h1 {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        /* --- Sidebar (Form Giao dịch & Số dư) --- */
+        .sidebar {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+            order: 1;
+        }
+
+        /* Balance Display */
+        #balance-display {
+            background-color: var(--primary-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        #balance-display h2 {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        #current-balance {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-top: 5px;
+            color: var(--text-light);
+        }
+
+        /* Form styling */
+        .form-title {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            transition: border-color 0.3s;
+        }
+
+        .form-group input::placeholder, .form-group select option {
+            color: var(--text-muted);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #ff5779;
+            transform: translateY(-2px);
+        }
+
+        /* --- Main Content (Lịch sử & Thống kê) --- */
+        .main-content {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            order: 2;
+        }
+
+        /* Tabs cho Lịch sử và Thống kê */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s, background-color 0.3s;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-light);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            background-color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Lịch sử Giao dịch */
+        .list-title, .stats-title {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        /* Bộ lọc và tìm kiếm */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filters input, .filters select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-family: 'Montserrat', sans-serif;
+            min-width: 120px;
+        }
+
+        .filters input::placeholder {
+            color: var(--text-muted);
+        }
+
+        #transactions {
+            list-style: none;
+            padding: 0;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        .transaction-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .transaction-item.income .transaction-amount {
+            color: var(--income-color);
+        }
+
+        .transaction-item.expense .transaction-amount {
+            color: var(--expense-color);
+        }
+
+        .transaction-info {
+            flex-grow: 1;
+            padding-right: 15px;
+        }
+
+        .transaction-info strong {
+            display: block;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .transaction-info small {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            text-align: right;
+            min-width: 120px;
+            font-size: 1.2rem;
+        }
+        
+        .delete-btn {
+            background: none;
+            color: var(--text-muted);
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            margin-left: 15px;
+            width: auto;
+            padding: 0 5px;
+            transition: color 0.3s;
+        }
+
+        .delete-btn:hover {
+            color: var(--expense-color);
+        }
+
+        /* Thống kê */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            background-color: var(--primary-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            height: 350px; /* Chiều cao cố định */
+            position: relative;
+        }
+        .chart-container h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Sổ Quỹ Chung Đa Năng ✨</h1>
+
+        <div class="sidebar">
+            <div id="balance-display">
+                <h2>Số Dư Hiện Tại</h2>
+                <div id="current-balance">0₫</div>
+            </div>
+
+            <div class="form-title">Thêm Giao Dịch Mới</div>
+            <form id="transaction-form">
+                <div class="form-group">
+                    <label for="description">Mô tả giao dịch</label>
+                    <input type="text" id="description" required placeholder="Ví dụ: Ăn trưa nhóm, Thu quỹ...">
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Số tiền (VNĐ)</label>
+                    <input type="number" id="amount" required min="1" placeholder="Nhập số tiền (chỉ số)">
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Loại giao dịch</label>
+                    <select id="type" required>
+                        <option value="income">Thu (Tiền vào)</option>
+                        <option value="expense">Chi (Tiền ra)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="payer">Người thực hiện/Người gửi</label>
+                    <input type="text" id="payer" placeholder="Tên người thực hiện/gửi...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="transaction-date">Ngày giao dịch</label>
+                    <input type="date" id="transaction-date" required>
+                </div>
+
+                <button type="submit">Thêm Giao Dịch <i class="fas fa-plus-circle"></i></button>
+            </form>
+        </div>
+        
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('history')">Lịch Sử Giao Dịch <i class="fas fa-history"></i></button>
+                <button class="tab-btn" onclick="showTab('statistics')">Thống Kê <i class="fas fa-chart-pie"></i></button>
+            </div>
+
+            <div id="history-tab" class="tab-content active">
+                <div class="list-title">Lịch Sử Chi Tiêu</div>
+                <div class="filters">
+                    <input type="text" id="filter-description" placeholder="Tìm theo mô tả...">
+                    <select id="filter-type">
+                        <option value="">Tất cả loại</option>
+                        <option value="income">Thu</option>
+                        <option value="expense">Chi</option>
+                    </select>
+                    <input type="text" id="filter-payer" placeholder="Tìm theo người thực hiện...">
+                    <select id="sort-by">
+                        <option value="date-desc">Mới nhất</option>
+                        <option value="date-asc">Cũ nhất</option>
+                        <option value="amount-desc">Số tiền giảm dần</option>
+                        <option value="amount-asc">Số tiền tăng dần</option>
+                    </select>
+                </div>
+                <ul id="transactions">
+                    </ul>
+            </div>
+
+            <div id="statistics-tab" class="tab-content">
+                <div class="stats-title">Thống Kê Quỹ Nhóm</div>
+                <div class="charts-grid">
+                    
+                    <div class="chart-container">
+                        <h3>1. Tỷ Lệ Tiền Vào vs Tiền Ra</h3>
+                        <canvas id="inOutChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>2. Tổng Thu Chi Hàng Tháng</h3>
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>3. Tỷ Lệ Chi Tiêu (Phân loại)</h3>
+                        <canvas id="expenseTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const balanceDisplay = document.getElementById('current-balance');
+        const transactionList = document.getElementById('transactions');
+        const form = document.getElementById('transaction-form');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Filter Elements
+        const filterDescription = document.getElementById('filter-description');
+        const filterType = document.getElementById('filter-type');
+        const filterPayer = document.getElementById('filter-payer');
+        const sortBy = document.getElementById('sort-by');
+        const transactionDateInput = document.getElementById('transaction-date');
+
+        let transactions = [];
+        let monthlyChartInstance = null;
+        let expenseTypeChartInstance = null;
+        let inOutChartInstance = null; // Thể hiện mới cho biểu đồ Tỷ lệ In/Out
+
+        // Set default date to today
+        transactionDateInput.valueAsDate = new Date();
+
+        // -----------------------------------------------------
+        // 1. Tải và Lưu trữ Dữ liệu (Local Storage)
+        // -----------------------------------------------------
+
+        function loadTransactions() {
+            const localTransactions = localStorage.getItem('groupFundTransactions');
+            if (localTransactions) {
+                transactions = JSON.parse(localTransactions);
+            }
+            applyFiltersAndSort(); 
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('groupFundTransactions', JSON.stringify(transactions));
+        }
+
+        // -----------------------------------------------------
+        // 2. Định dạng & Cập nhật Giao diện
+        // -----------------------------------------------------
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function updateUI(filteredTransactions = transactions) {
+            // Update Balance
+            const balance = transactions.reduce((acc, transaction) => {
+                return acc + (transaction.type === 'income' ? transaction.amount : -transaction.amount);
+            }, 0);
+            balanceDisplay.textContent = formatCurrency(balance);
+            
+            // Update Transaction List
+            transactionList.innerHTML = '';
+            if (filteredTransactions.length === 0) {
+                const noResultItem = document.createElement('li');
+                noResultItem.classList.add('transaction-item');
+                noResultItem.style.justifyContent = 'center';
+                noResultItem.innerHTML = `<span style="color:var(--text-muted);">Không có giao dịch nào phù hợp.</span>`;
+                transactionList.appendChild(noResultItem);
+            } else {
+                filteredTransactions.forEach(transaction => {
+                    const item = document.createElement('li');
+                    item.classList.add('transaction-item', transaction.type);
+
+                    const sign = transaction.type === 'income' ? '<i class="fas fa-plus-circle"></i>' : '<i class="fas fa-minus-circle"></i>';
+                    
+                    const date = new Date(transaction.date).toLocaleDateString('vi-VN');
+
+                    item.innerHTML = `
+                        <div class="transaction-info">
+                            <strong>${transaction.description}</strong> 
+                            <small>${transaction.payer || 'Chưa rõ'} - ${date}</small>
+                        </div>
+                        <span class="transaction-amount">
+                            ${sign} ${formatCurrency(transaction.amount)}
+                        </span>
+                        <button class="delete-btn" onclick="deleteTransaction(${transaction.id})"><i class="fas fa-trash-alt"></i></button>
+                    `;
+                    transactionList.appendChild(item);
+                });
+            }
+            // Chỉ cập nhật biểu đồ khi tab Thống kê đang hoạt động
+            if (document.getElementById('statistics-tab').classList.contains('active')) {
+                updateCharts(); 
+            }
+        }
+
+        // -----------------------------------------------------
+        // 3. Xử lý Thêm, Xóa, Lọc, Sắp xếp
+        // -----------------------------------------------------
+
+        function addTransaction(e) {
+            e.preventDefault();
+
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const payer = document.getElementById('payer').value;
+            const date = new Date(transactionDateInput.value).getTime(); 
+
+            if (description.trim() === '' || isNaN(amount) || amount <= 0 || !date) {
+                alert('Vui lòng nhập đầy đủ và chính xác các thông tin giao dịch.');
+                return;
+            }
+
+            const newTransaction = {
+                id: Date.now(),
+                description,
+                amount,
+                type,
+                payer: payer || 'Chưa rõ',
+                date: date 
+            };
+
+            transactions.unshift(newTransaction);
+            saveTransactions();
+            applyFiltersAndSort(); 
+
+            form.reset();
+            transactionDateInput.valueAsDate = new Date(); 
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(transaction => transaction.id !== id);
+            saveTransactions();
+            applyFiltersAndSort();
+        }
+
+        function applyFiltersAndSort() {
+            let filtered = [...transactions]; 
+
+            // 1. Lọc
+            const descFilter = filterDescription.value.toLowerCase();
+            const typeFilter = filterType.value;
+            const payerFilter = filterPayer.value.toLowerCase();
+
+            if (descFilter) {
+                filtered = filtered.filter(t => t.description.toLowerCase().includes(descFilter));
+            }
+            if (typeFilter) {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+            if (payerFilter) {
+                filtered = filtered.filter(t => t.payer.toLowerCase().includes(payerFilter));
+            }
+
+            // 2. Sắp xếp
+            const sortOrder = sortBy.value;
+            filtered.sort((a, b) => {
+                if (sortOrder === 'date-desc') return b.date - a.date;
+                if (sortOrder === 'date-asc') return a.date - b.date;
+                if (sortOrder === 'amount-desc') return b.amount - a.amount;
+                if (sortOrder === 'amount-asc') return a.amount - b.amount;
+                return 0;
+            });
+
+            updateUI(filtered);
+        }
+
+        // -----------------------------------------------------
+        // 4. Quản lý Tabs (Lịch sử / Thống kê)
+        // -----------------------------------------------------
+
+        function showTab(tabId) {
+            tabContents.forEach(content => content.classList.remove('active'));
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`).classList.add('active');
+
+            if (tabId === 'statistics') {
+                updateCharts();
+            }
+        }
+
+        // -----------------------------------------------------
+        // 5. Thống kê & Biểu đồ Chart.js
+        // -----------------------------------------------------
+
+        function updateCharts() {
+            drawMonthlyChart();
+            drawExpenseTypeChart();
+            drawInOutChart(); // Thêm biểu đồ mới
+        }
+
+        // Helper để chuyển đổi biến CSS sang giá trị RGB cho Chart.js
+        function var_to_rgb(cssVar, alpha = 1) {
+            const style = getComputedStyle(document.body);
+            const color = style.getPropertyValue(cssVar).trim();
+            if (color.startsWith('#')) {
+                let r = parseInt(color.slice(1, 3), 16);
+                let g = parseInt(color.slice(3, 5), 16);
+                let b = parseInt(color.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+            return color; 
+        }
+
+        function generateColors(num) {
+            const colors = [
+                '#e94560', '#ffc107', '#20c997', '#6f42c1', '#fd7e14', '#0dcaf0', '#d63384', '#6610f2'
+            ];
+            return Array.from({ length: num }, (_, i) => colors[i % colors.length]);
+        }
+
+        // --- BIỂU ĐỒ 1: TỶ LỆ TIỀN VÀO VS TIỀN RA (Doughnut Chart) ---
+        function drawInOutChart() {
+            let totalIncome = 0;
+            let totalExpenses = 0;
+
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalIncome += t.amount;
+                } else if (t.type === 'expense') {
+                    totalExpenses += t.amount;
+                }
+            });
+
+            const totalFlow = totalIncome + totalExpenses;
+            if (totalFlow === 0) return;
+
+            const data = {
+                labels: ['Tiền Vào (Income)', 'Tiền Ra (Expense)'],
+                datasets: [{
+                    data: [totalIncome, totalExpenses],
+                    backgroundColor: [
+                        var_to_rgb('--income-color', 1), 
+                        var_to_rgb('--expense-color', 1) 
+                    ],
+                    hoverOffset: 8
+                }]
+            };
+
+            const ctx = document.getElementById('inOutChart').getContext('2d');
+            if (inOutChartInstance) {
+                inOutChartInstance.destroy();
+            }
+
+            inOutChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: var_to_rgb('--text-light') } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = (value / totalFlow * 100).toFixed(2) + '%';
+                                    const formattedValue = value.toLocaleString('vi-VN') + ' VNĐ';
+                                    return `${label}: ${formattedValue} (${percentage})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // --- BIỂU ĐỒ 2: TỔNG THU CHI HÀNG THÁNG (Bar Chart) ---
+        function drawMonthlyChart() {
+            const monthlyData = {}; 
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+                if (!monthlyData[yearMonth]) {
+                    monthlyData[yearMonth] = { income: 0, expense: 0 };
+                }
+                if (t.type === 'income') {
+                    monthlyData[yearMonth].income += t.amount;
+                } else {
+                    monthlyData[yearMonth].expense += t.amount;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const labels = sortedMonths.map(month => {
+                const [year, monthNum] = month.split('-');
+                return `Thg ${parseInt(monthNum)}/${year}`;
+            });
+            const incomes = sortedMonths.map(month => monthlyData[month].income);
+            const expenses = sortedMonths.map(month => monthlyData[month].expense);
+
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            if (monthlyChartInstance) {
+                monthlyChartInstance.destroy();
+            }
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Thu nhập',
+                            data: incomes,
+                            backgroundColor: var_to_rgb('--income-color', 0.8),
+                            borderColor: var_to_rgb('--income-color', 1),
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Chi tiêu',
+                            data: expenses,
+                            backgroundColor: var_to_rgb('--expense-color', 0.8),
+                            borderColor: var_to_rgb('--expense-color', 1),
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: false,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: var_to_rgb('--text-light') }
+                        },
+                        y: {
+                            stacked: false,
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: {
+                                color: var_to_rgb('--text-light'),
+                                callback: function(value) { return formatCurrency(value); }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: var_to_rgb('--text-light') } },
+                        tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + formatCurrency(context.raw); } } }
+                    }
+                }
+            });
+        }
+
+        // --- BIỂU ĐỒ 3: TỶ LỆ CHI TIÊU THEO HẠNG MỤC (Doughnut Chart) ---
+        function drawExpenseTypeChart() {
+            const expenseTypeData = {}; 
+            let totalExpenses = 0;
+
+            transactions.filter(t => t.type === 'expense').forEach(t => {
+                const category = t.description.split(' ')[0].toLowerCase(); 
+                expenseTypeData[category] = (expenseTypeData[category] || 0) + t.amount;
+                totalExpenses += t.amount;
+            });
+            
+            if (totalExpenses === 0) return;
+
+            const labels = Object.keys(expenseTypeData);
+            const data = Object.values(expenseTypeData);
+            const backgroundColors = generateColors(labels.length);
+
+            const ctx = document.getElementById('expenseTypeChart').getContext('2d');
+            if (expenseTypeChartInstance) {
+                expenseTypeChartInstance.destroy();
+            }
+            expenseTypeChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: var_to_rgb('--text-light') } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const percentage = totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(1) + '%' : '0%';
+                                    const formattedValue = value.toLocaleString('vi-VN') + ' VNĐ';
+                                    return `${label}: ${formattedValue} (${percentage})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // -----------------------------------------------------
+        // 6. Khởi tạo Ứng dụng
+        // -----------------------------------------------------
+
+        form.addEventListener('submit', addTransaction);
+
+        filterDescription.addEventListener('input', applyFiltersAndSort);
+        filterType.addEventListener('change', applyFiltersAndSort);
+        filterPayer.addEventListener('input', applyFiltersAndSort);
+        sortBy.addEventListener('change', applyFiltersAndSort);
+
+        loadTransactions();
+        showTab('history'); 
+    </script>
+</body>
+</html>
